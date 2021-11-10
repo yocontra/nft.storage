@@ -25,8 +25,8 @@ export async function nftStoreV1(event, ctx) {
   const meta = /** @type {string} */ (form.get('meta'))
   const data = JSON.parse(meta)
   const dag = JSON.parse(meta)
-
   const files = []
+  let dagSize = 0
 
   for (const [name, content] of form.entries()) {
     if (name !== 'meta') {
@@ -34,7 +34,8 @@ export async function nftStoreV1(event, ctx) {
       const asset = await cluster.importAsset(file, {
         local: file.size > constants.cluster.localAddThreshold,
       })
-      const cid = CID.parse(asset)
+      const cid = CID.parse(asset.cid)
+      dagSize += asset.size
 
       const href = `ipfs://${cid}/${file.name}`
       const path = name.split('.')
@@ -67,6 +68,7 @@ export async function nftStoreV1(event, ctx) {
     car,
     uploadType: 'Nft',
     mimeType: 'application/ipnft',
+    dagSize: 
     isComplete: false, // TODO: needs to be complete
     files
   })
